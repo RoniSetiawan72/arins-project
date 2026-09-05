@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('category')->index(); // listrik, internet, kebersihan, maintenance, lainnya
             $table->decimal('amount', 12, 2);
             $table->text('description')->nullable();
-            $table->date('expense_date');
+            $table->date('expense_date')->index();
             $table->string('receipt_photo', 1000)->nullable();
             $table->timestamps();
         });
