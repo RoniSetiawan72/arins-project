@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\LeaseController;
+use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\ProfileController;
 use App\Models\User;
 use Illuminate\Foundation\Application;
@@ -28,8 +31,24 @@ Route::get('/dashboard', function () {
 // Rute Khusus Pemilik Kos (Owner / Admin)
 Route::middleware(['auth', 'role:owner'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard', ['role' => 'owner']);
+        return redirect()->route('admin.rooms.index');
     })->name('dashboard');
+
+    // Modul Manajemen Kamar
+    Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+    Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
+    Route::put('/rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
+    Route::delete('/rooms/{room}', [RoomController::class, 'destroy'])->name('rooms.destroy');
+
+    // Modul Kontrak Sewa & Checkout
+    Route::get('/leases', [LeaseController::class, 'index'])->name('leases.index');
+    Route::get('/leases/create', [LeaseController::class, 'create'])->name('leases.create');
+    Route::post('/leases', [LeaseController::class, 'store'])->name('leases.store');
+    Route::post('/leases/{lease}/checkout', [LeaseController::class, 'checkout'])->name('leases.checkout');
+
+    // Modul Direktori Penyewa
+    Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
+    Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
 });
 
 // Rute Khusus Penyewa Kos (Tenant)
