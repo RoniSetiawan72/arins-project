@@ -18,8 +18,8 @@ services:
       - DB_CONNECTION=pgsql
       - DB_HOST=database
       - DB_PORT=5432
-      - DB_DATABASE=${DB_DATABASE:-simkos}
-      - DB_USERNAME=${DB_USERNAME:-simkos}
+      - DB_DATABASE=${DB_DATABASE:-sim_kos}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -53,8 +53,8 @@ services:
     container_name: simkos_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-simkos}
-      POSTGRES_USER: ${DB_USERNAME:-simkos}
+      POSTGRES_DB: ${DB_DATABASE:-sim_kos}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     ports:
       - "${FORWARD_DB_PORT:-5432}:5432"
