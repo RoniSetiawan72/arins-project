@@ -25,7 +25,7 @@ class RoleMiddlewareTest extends TestCase
             'role' => 'owner',
         ]);
 
-        $response = $this->actingAs($owner)->get('/admin/dashboard');
+        $response = $this->actingAs($owner)->get('/admin/rooms');
         $response->assertStatus(200);
     }
 
