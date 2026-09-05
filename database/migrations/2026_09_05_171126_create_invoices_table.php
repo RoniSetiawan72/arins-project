@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('period_start')->nullable();
             $table->date('period_end')->nullable();
             $table->decimal('amount', 12, 2);
-            $table->date('due_date');
+            $table->date('due_date')->index();
             $table->string('xendit_invoice_id')->nullable()->index();
             $table->string('xendit_external_id')->nullable()->index();
             $table->string('payment_link', 1000)->nullable();

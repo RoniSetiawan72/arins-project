@@ -11,7 +11,6 @@ use App\Models\Room;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,93 +21,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create Owner / Ibu Kos
-        $owner = User::firstOrCreate(
-            ['email' => 'owner@simkos.test'],
-            [
-                'name' => 'Ibu Kos Hj. Maryam',
-                'phone' => '081234567890',
-                'role' => 'owner',
-                'id_card_number' => '3273010101700001',
-                'password' => Hash::make('password'),
-            ]
-        );
+        // 1. Seed Users (Owner & Tenants)
+        $this->call(UserSeeder::class);
 
-        // 2. Create Tenants
-        $tenant1 = User::firstOrCreate(
-            ['email' => 'tenant@simkos.test'],
-            [
-                'name' => 'Ahmad Fauzi',
-                'phone' => '089876543210',
-                'role' => 'tenant',
-                'id_card_number' => '3273012345670001',
-                'emergency_contact_name' => 'Bapak Fauzi',
-                'emergency_contact_phone' => '081112223334',
-                'password' => Hash::make('password'),
-            ]
-        );
+        // 2. Seed Rooms
+        $this->call(RoomSeeder::class);
 
-        $tenant2 = User::firstOrCreate(
-            ['email' => 'budi@simkos.test'],
-            [
-                'name' => 'Budi Santoso',
-                'phone' => '085678901234',
-                'role' => 'tenant',
-                'id_card_number' => '3273012345670002',
-                'emergency_contact_name' => 'Ibu Santoso',
-                'emergency_contact_phone' => '085556667778',
-                'password' => Hash::make('password'),
-            ]
-        );
-
-        // 3. Create Sample Rooms
-        $room101 = Room::firstOrCreate(
-            ['room_number' => '101'],
-            [
-                'room_type' => 'Deluxe',
-                'price' => 1500000,
-                'status' => 'occupied',
-                'description' => 'Kamar lantai 1 dengan AC, Kasur King Size, Kamar Mandi Dalam & Water Heater.',
-                'facilities' => ['AC', 'WiFi 100Mbps', 'Kamar Mandi Dalam', 'Water Heater', 'Kasur Springbed', 'Lemari 2 Pintu', 'Meja Belajar'],
-                'inventory_photos' => ['/images/rooms/room-101-1.jpg', '/images/rooms/room-101-2.jpg'],
-            ]
-        );
-
-        $room102 = Room::firstOrCreate(
-            ['room_number' => '102'],
-            [
-                'room_type' => 'Standard',
-                'price' => 1000000,
-                'status' => 'occupied',
-                'description' => 'Kamar nyaman lantai 1 dengan Kipas Angin, Kasur Single, Meja Belajar.',
-                'facilities' => ['WiFi 100Mbps', 'Kamar Mandi Luar', 'Kipas Angin', 'Kasur Single', 'Lemari Pakaian', 'Meja Belajar'],
-                'inventory_photos' => ['/images/rooms/room-102-1.jpg'],
-            ]
-        );
-
-        $room201 = Room::firstOrCreate(
-            ['room_number' => '201'],
-            [
-                'room_type' => 'VIP Suite',
-                'price' => 2000000,
-                'status' => 'available',
-                'description' => 'Kamar luas lantai 2 dengan Balkon Pribadi, Smart TV, AC, Kulkas Mini & Kamar Mandi Dalam.',
-                'facilities' => ['AC', 'Smart TV 43 inch', 'Kulkas Mini', 'Balkon Pribadi', 'WiFi 100Mbps', 'Kamar Mandi Dalam', 'Water Heater'],
-                'inventory_photos' => ['/images/rooms/room-201-1.jpg'],
-            ]
-        );
-
-        $room202 = Room::firstOrCreate(
-            ['room_number' => '202'],
-            [
-                'room_type' => 'Standard',
-                'price' => 1000000,
-                'status' => 'maintenance',
-                'description' => 'Sedang dilakukan pengecatan ulang dinding dan perbaikan shower.',
-                'facilities' => ['WiFi 100Mbps', 'Kamar Mandi Luar', 'Kipas Angin'],
-                'inventory_photos' => [],
-            ]
-        );
+        $tenant1 = User::where('email', 'tenant@simkos.test')->first();
+        $tenant2 = User::where('email', 'budi@simkos.test')->first();
+        $room101 = Room::where('room_number', '101')->first();
+        $room102 = Room::where('room_number', '102')->first();
 
         // 4. Create Active Leases
         $lease1 = Lease::firstOrCreate(
