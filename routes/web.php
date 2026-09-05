@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LeaseController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Tenant\TenantDashboardController;
 use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -30,9 +32,7 @@ Route::get('/dashboard', function () {
 
 // Rute Khusus Pemilik Kos (Owner / Admin)
 Route::middleware(['auth', 'role:owner'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return redirect()->route('admin.rooms.index');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Modul Manajemen Kamar
     Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
@@ -53,9 +53,7 @@ Route::middleware(['auth', 'role:owner'])->prefix('admin')->name('admin.')->grou
 
 // Rute Khusus Penyewa Kos (Tenant)
 Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard', ['role' => 'tenant']);
-    })->name('dashboard');
+    Route::get('/dashboard', [TenantDashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware('auth')->group(function () {
