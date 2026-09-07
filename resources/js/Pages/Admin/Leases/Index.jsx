@@ -15,6 +15,9 @@ import {
     Trash2,
     X,
     PlusCircle,
+    ArrowUpRight,
+    Search,
+    Clock,
 } from 'lucide-react';
 
 export default function LeasesIndex({ leases = [], counts = {}, status = 'active' }) {
@@ -82,42 +85,48 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
             {/* Page Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
                 <div>
-                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
                         Kontrak Sewa & Penghuni
                     </h1>
-                    <p className="text-sm text-slate-500 dark:text-zinc-400">
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                         Kelola data perjanjian sewa aktif, siklus penagihan, uang deposit, dan penyelesaian checkout.
                     </p>
                 </div>
                 <Link
                     href={route('admin.leases.create')}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-100 hover:bg-indigo-700 transition active:scale-95"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 dark:bg-zinc-100 px-4 py-2.5 text-xs font-semibold text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white shadow-xs transition"
                 >
                     <Plus className="h-4 w-4" />
                     Buat Kontrak Sewa Baru
                 </Link>
             </div>
 
-            {/* Status Filter Tabs */}
-            <div className="flex items-center gap-2 mb-6">
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl border border-zinc-200/80 dark:border-zinc-800 w-fit mb-6">
                 {[
                     { key: 'active', label: 'Sewa Aktif', count: counts.active || 0 },
                     { key: 'completed', label: 'Riwayat Selesai', count: counts.completed || 0 },
                     { key: 'all', label: 'Semua', count: counts.all || 0 },
                 ].map((tab) => {
-                    const active = (status || 'active') === tab.key;
+                    const isActive = (status || 'active') === tab.key;
                     return (
                         <button
                             key={tab.key}
                             onClick={() => handleFilterStatus(tab.key)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
-                                active
-                                    ? 'bg-indigo-600 text-white shadow-xs'
-                                    : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 border border-slate-200/80 dark:border-zinc-800 hover:bg-slate-50'
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                                isActive
+                                    ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs'
+                                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                             }`}
                         >
                             {tab.label}
-                            <span className={`px-1.5 py-0.2 rounded-md text-[10px] ${active ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'}`}>
+                            <span
+                                className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono ${
+                                    isActive
+                                        ? 'bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100'
+                                        : 'bg-zinc-200/60 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
+                                }`}
+                            >
                                 {tab.count}
                             </span>
                         </button>
@@ -127,102 +136,121 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
 
             {/* Leases List */}
             {leases.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {leases.map((lease) => {
                         const isActive = lease.status === 'active';
+                        const cleanPhone = (lease.tenant.phone || '').replace(/[^0-9]/g, '');
+
                         return (
                             <div
                                 key={lease.id}
-                                className="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs transition hover:border-slate-300 dark:hover:border-zinc-700 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5"
+                                className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs transition hover:border-zinc-300 dark:hover:border-zinc-700 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5"
                             >
-                                {/* Left Info: Tenant & Room */}
-                                <div className="flex items-start gap-4">
-                                    <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center font-black text-indigo-600 dark:text-indigo-400 text-base shrink-0 border border-indigo-100 dark:border-indigo-900/50">
-                                        {lease.room.room_number}
+                                {/* Left: Unit & Tenant Info */}
+                                <div className="flex items-start gap-4 min-w-[280px]">
+                                    <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center shrink-0">
+                                        <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Unit</span>
+                                        <span className="text-base font-bold font-mono text-zinc-900 dark:text-zinc-100">
+                                            {lease.room.room_number}
+                                        </span>
                                     </div>
 
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
-                                            <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
+                                            <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
                                                 {lease.tenant.name}
                                             </h3>
-                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                                isActive
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
-                                                    : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-zinc-800 dark:text-zinc-400'
-                                            }`}>
-                                                {isActive ? 'Aktif' : 'Selesai / Checkout'}
+                                            <span
+                                                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                                                    isActive
+                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/60'
+                                                        : 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
+                                                }`}
+                                            >
+                                                <span
+                                                    className={`w-1.5 h-1.5 rounded-full ${
+                                                        isActive ? 'bg-emerald-500' : 'bg-zinc-400'
+                                                    }`}
+                                                />
+                                                {isActive ? 'Aktif' : 'Selesai'}
                                             </span>
                                         </div>
 
-                                        <p className="text-xs text-slate-500 dark:text-zinc-400 flex items-center gap-3 flex-wrap">
-                                            <span>Kamar {lease.room.room_number} ({lease.room.room_type})</span>
+                                        <p className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-3 flex-wrap">
+                                            <span>Tipe {lease.room.room_type}</span>
                                             {lease.tenant.phone && (
                                                 <a
-                                                    href={`https://wa.me/${lease.tenant.phone.replace(/[^0-9]/g, '')}`}
+                                                    href={`https://wa.me/${cleanPhone}`}
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="text-emerald-600 hover:underline flex items-center gap-1 font-medium"
+                                                    className="text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 font-medium"
                                                 >
-                                                    <Phone className="h-3 w-3" /> {lease.tenant.phone}
+                                                    <Phone className="h-3 w-3" />
+                                                    {lease.tenant.phone}
                                                 </a>
                                             )}
                                         </p>
                                     </div>
                                 </div>
 
-                                {/* Center Info: Financials & Dates */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-3 lg:py-0 border-y lg:border-y-0 border-slate-100 dark:border-zinc-800 text-xs">
+                                {/* Center: Financials & Dates (Grid) */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-3 lg:py-0 border-y lg:border-y-0 border-zinc-100 dark:border-zinc-800 text-xs">
                                     <div>
-                                        <span className="text-slate-400 block text-[11px]">Sewa ({lease.billing_cycle === 'yearly' ? 'Tahunan' : 'Bulanan'})</span>
-                                        <span className="font-bold text-slate-900 dark:text-white">
-                                            Rp {lease.rent_amount.toLocaleString('id-ID')}
+                                        <span className="text-zinc-400 block text-[11px] mb-0.5">
+                                            Sewa ({lease.billing_cycle === 'yearly' ? 'Tahunan' : 'Bulanan'})
+                                        </span>
+                                        <span className="font-semibold font-mono text-zinc-900 dark:text-zinc-100">
+                                            Rp {Number(lease.rent_amount).toLocaleString('id-ID')}
                                         </span>
                                     </div>
 
                                     <div>
-                                        <span className="text-slate-400 block text-[11px]">Uang Deposit</span>
-                                        <span className="font-bold text-indigo-600 dark:text-indigo-400">
-                                            Rp {lease.deposit_amount.toLocaleString('id-ID')}
+                                        <span className="text-zinc-400 block text-[11px] mb-0.5">Uang Deposit</span>
+                                        <span className="font-semibold font-mono text-zinc-900 dark:text-zinc-100">
+                                            Rp {Number(lease.deposit_amount).toLocaleString('id-ID')}
                                         </span>
                                     </div>
 
                                     <div>
-                                        <span className="text-slate-400 block text-[11px]">Periode Mulai</span>
-                                        <span className="font-medium text-slate-700 dark:text-zinc-300">
-                                            {lease.start_date_formatted}
+                                        <span className="text-zinc-400 block text-[11px] mb-0.5">Mulai Masuk</span>
+                                        <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                                            {lease.start_date_formatted || lease.start_date}
                                         </span>
                                     </div>
 
                                     <div>
-                                        <span className="text-slate-400 block text-[11px]">Status Tagihan</span>
+                                        <span className="text-zinc-400 block text-[11px] mb-0.5">Status Tagihan</span>
                                         {lease.unpaid_invoices_count > 0 ? (
-                                            <span className="font-bold text-rose-600">
-                                                {lease.unpaid_invoices_count} Belum Bayar
+                                            <span className="inline-flex items-center gap-1 font-semibold text-rose-600 dark:text-rose-400">
+                                                <AlertCircle className="h-3.5 w-3.5" />
+                                                {lease.unpaid_invoices_count} Tunggakan
                                             </span>
                                         ) : (
-                                            <span className="font-semibold text-emerald-600">
+                                            <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                                                <CheckCircle2 className="h-3.5 w-3.5" />
                                                 Lancar
                                             </span>
                                         )}
                                     </div>
                                 </div>
 
-                                {/* Right Actions: Checkout Button */}
-                                <div className="flex items-center gap-2 justify-end">
+                                {/* Right: Action Button */}
+                                <div className="flex items-center gap-2 justify-end shrink-0">
                                     {isActive ? (
                                         <button
                                             onClick={() => openCheckoutModal(lease)}
-                                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-50 hover:bg-amber-600 text-amber-700 hover:text-white dark:bg-amber-950/40 dark:text-amber-300 px-3.5 py-2 text-xs font-bold border border-amber-200 dark:border-amber-900/60 transition"
+                                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/60 px-3.5 py-2 text-xs font-semibold border border-amber-200/80 dark:border-amber-900/60 transition"
                                         >
                                             <LogOut className="h-3.5 w-3.5" />
                                             Proses Checkout
                                         </button>
                                     ) : (
                                         <div className="text-right text-xs">
-                                            <span className="text-slate-400 block text-[11px]">Checkout pada {lease.checkout_date}</span>
-                                            <span className="font-bold text-emerald-600">
-                                                Refund: Rp {lease.refund_amount.toLocaleString('id-ID')}
+                                            <span className="text-zinc-400 block text-[11px]">
+                                                Keluar: {lease.checkout_date}
+                                            </span>
+                                            <span className="font-semibold font-mono text-emerald-600 dark:text-emerald-400">
+                                                Refund: Rp {Number(lease.refund_amount || 0).toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                     )}
@@ -232,12 +260,12 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
                     })}
                 </div>
             ) : (
-                <div className="rounded-2xl border border-dashed border-slate-300 dark:border-zinc-800 p-12 text-center bg-white dark:bg-zinc-900">
-                    <FileText className="mx-auto h-12 w-12 text-slate-300 dark:text-zinc-600" />
-                    <h3 className="mt-4 text-base font-bold text-slate-800 dark:text-zinc-200">
+                <div className="rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 p-12 text-center bg-white dark:bg-zinc-900">
+                    <FileText className="mx-auto h-10 w-10 text-zinc-300 dark:text-zinc-700" />
+                    <h3 className="mt-4 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                         Belum ada kontrak sewa
                     </h3>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                         Klik tombol "Buat Kontrak Sewa Baru" untuk mendaftarkan penyewa pertama.
                     </p>
                 </div>
@@ -245,42 +273,44 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
 
             {/* Modal Checkout Settlement & Deposit Refund */}
             {isCheckoutModalOpen && selectedLease && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-                    <div className="w-full max-w-xl rounded-3xl bg-white dark:bg-zinc-900 p-6 shadow-2xl border border-slate-200 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-zinc-800 mb-5">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs">
+                    <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800 mb-5">
                             <div>
-                                <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
                                     Checkout & Kalkulasi Deposit
                                 </h3>
-                                <p className="text-xs text-slate-500">
-                                    Penyewa: {selectedLease.tenant.name} • Kamar {selectedLease.room.room_number}
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                    {selectedLease.tenant.name} • Kamar {selectedLease.room.room_number}
                                 </p>
                             </div>
                             <button
                                 onClick={() => setIsCheckoutModalOpen(false)}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200"
+                                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
                             >
-                                <X className="h-5 w-5" />
+                                <X className="h-4 w-4" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleCheckoutSubmit} className="space-y-5">
-                            {/* Summary Ringkasan Deposit Awal */}
-                            <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-between">
+                        <form onSubmit={handleCheckoutSubmit} className="space-y-4">
+                            {/* Deposit Overview Banner */}
+                            <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700 flex items-center justify-between">
                                 <div>
-                                    <span className="text-xs text-indigo-700 dark:text-indigo-300 font-semibold block">
+                                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium block">
                                         Deposit Awal Terbayar
                                     </span>
-                                    <span className="text-xl font-extrabold text-indigo-950 dark:text-indigo-100">
+                                    <span className="text-lg font-bold font-mono text-zinc-900 dark:text-zinc-100">
                                         Rp {initialDeposit.toLocaleString('id-ID')}
                                     </span>
                                 </div>
-                                <ShieldCheck className="h-8 w-8 text-indigo-600 dark:text-indigo-400 opacity-80" />
+                                <div className="h-9 w-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/60 dark:border-emerald-900/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                    <ShieldCheck className="h-5 w-5" />
+                                </div>
                             </div>
 
                             {/* Tanggal Checkout */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1">
+                                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                                     Tanggal Berakhir / Keluar Kos <span className="text-rose-500">*</span>
                                 </label>
                                 <input
@@ -288,22 +318,22 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
                                     required
                                     value={data.checkout_date}
                                     onChange={(e) => setData('checkout_date', e.target.value)}
-                                    className="w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3.5 py-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
                                 />
                             </div>
 
                             {/* Daftar Potongan Denda / Kerusakan */}
                             <div>
                                 <div className="flex items-center justify-between mb-2">
-                                    <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300">
-                                        Potongan Kerusakan / Tunggakan
+                                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                                        Potongan Kerusakan / Denda
                                     </label>
                                     <button
                                         type="button"
                                         onClick={addDeductionRow}
-                                        className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                                        className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
                                     >
-                                        <PlusCircle className="h-3.5 w-3.5" /> Tambah Potongan
+                                        <PlusCircle className="h-3.5 w-3.5" /> Tambah Rincian
                                     </button>
                                 </div>
 
@@ -313,11 +343,11 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
                                             <div key={idx} className="flex items-center gap-2">
                                                 <input
                                                     type="text"
-                                                    placeholder="Alasan (contoh: Kunci hilang, Dinding rusak)"
+                                                    placeholder="Keterangan (contoh: Kunci hilang, Dinding rusak)"
                                                     required
                                                     value={row.reason}
                                                     onChange={(e) => updateDeductionRow(idx, 'reason', e.target.value)}
-                                                    className="flex-1 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                                    className="flex-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
                                                 />
                                                 <input
                                                     type="number"
@@ -327,12 +357,12 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
                                                     required
                                                     value={row.amount || ''}
                                                     onChange={(e) => updateDeductionRow(idx, 'amount', e.target.value)}
-                                                    className="w-32 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                                    className="w-32 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => removeDeductionRow(idx)}
-                                                    className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg"
+                                                    className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
@@ -340,25 +370,25 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-xs text-slate-400 p-3 rounded-xl border border-dashed border-slate-200 dark:border-zinc-800 text-center">
-                                        Tidak ada potongan (Kamar dalam kondisi baik).
+                                    <p className="text-xs text-zinc-400 dark:text-zinc-500 p-3 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 text-center">
+                                        Tidak ada potongan (Kamar dalam kondisi prima & bersih).
                                     </p>
                                 )}
                             </div>
 
                             {/* Kalkulasi Sisa Pengembalian Deposit */}
-                            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 space-y-2 text-xs">
-                                <div className="flex justify-between text-slate-600 dark:text-zinc-400">
+                            <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700 space-y-2 text-xs">
+                                <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                                     <span>Deposit Awal</span>
-                                    <span>Rp {initialDeposit.toLocaleString('id-ID')}</span>
+                                    <span className="font-mono">Rp {initialDeposit.toLocaleString('id-ID')}</span>
                                 </div>
                                 <div className="flex justify-between text-rose-600 dark:text-rose-400">
                                     <span>Total Potongan</span>
-                                    <span>- Rp {totalDeductions.toLocaleString('id-ID')}</span>
+                                    <span className="font-mono">- Rp {totalDeductions.toLocaleString('id-ID')}</span>
                                 </div>
-                                <div className="pt-2 border-t border-slate-200 dark:border-zinc-700 flex justify-between font-bold text-sm">
-                                    <span className="text-slate-900 dark:text-white">Estimasi Sisa Refund</span>
-                                    <span className="text-emerald-600 dark:text-emerald-400 text-base font-extrabold">
+                                <div className="pt-2 border-t border-zinc-200 dark:border-zinc-700 flex justify-between font-bold">
+                                    <span className="text-zinc-900 dark:text-zinc-100">Estimasi Sisa Refund</span>
+                                    <span className="text-emerald-600 dark:text-emerald-400 text-sm font-bold font-mono">
                                         Rp {estimatedRefund.toLocaleString('id-ID')}
                                     </span>
                                 </div>
@@ -366,32 +396,32 @@ export default function LeasesIndex({ leases = [], counts = {}, status = 'active
 
                             {/* Catatan */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1">
+                                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                                     Catatan Serah Terima Kunci / Kamar
                                 </label>
                                 <textarea
                                     rows="2"
                                     value={data.notes}
                                     onChange={(e) => setData('notes', e.target.value)}
-                                    placeholder="Contoh: Kunci kamar dan gerbang telah dikembalikan lengkap..."
-                                    className="w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-3.5 py-2 text-xs text-slate-900 dark:text-white"
+                                    placeholder="Contoh: Kunci kamar dan kartu akses telah diserahkan lengkap..."
+                                    className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3.5 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
                                 />
                             </div>
 
-                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
+                            <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-zinc-100 dark:border-zinc-800">
                                 <button
                                     type="button"
                                     onClick={() => setIsCheckoutModalOpen(false)}
-                                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                    className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 shadow-md shadow-amber-100 transition disabled:opacity-50"
+                                    className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-500 shadow-xs transition disabled:opacity-50"
                                 >
-                                    {processing ? 'Memproses...' : 'Selesaikan Checkout & Kembalikan Kamar'}
+                                    {processing ? 'Memproses...' : 'Selesaikan Checkout & Kosongkan Kamar'}
                                 </button>
                             </div>
                         </form>
